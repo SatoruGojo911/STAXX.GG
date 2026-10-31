@@ -2,7 +2,7 @@
 
 import * as React from "react";
 import { motion, AnimatePresence, useReducedMotion } from "framer-motion";
-import { Flame, Sparkles } from "lucide-react";
+import { Sparkles } from "lucide-react";
 import { getAuraTier } from "@/lib/aura-config";
 import { AuraParticles } from "./aura-particles";
 import { StreakDisplay } from "./streak-display";
@@ -29,34 +29,25 @@ export function StreakAura({ streak, personalBest = 0, isEvolution = false }: St
     prevTierLevelRef.current = tier.level;
   }, [tier.level]);
 
-  // Compute glowing style per tier
-  const auraGlowStyle = React.useMemo(() => {
-    if (tier.level === 0) return {};
-    return {
-      boxShadow: `0 0 ${20 + tier.level * 10}px ${tier.glowColor}, inset 0 0 ${10 + tier.level * 4}px ${tier.glowColor}`,
-      borderColor: tier.primaryColor,
-    };
-  }, [tier]);
-
   return (
     <div className="relative flex flex-col items-center justify-center py-2 select-none">
       {/* Evolution Milestone Announcement Overlay */}
       <AnimatePresence>
         {showEvolutionBanner && !shouldReduceMotion && (
           <motion.div
-            initial={{ opacity: 0, scale: 0.7, y: 10 }}
+            initial={{ opacity: 0, scale: 0.8, y: 10 }}
             animate={{ opacity: 1, scale: 1.05, y: -20 }}
-            exit={{ opacity: 0, scale: 1.2, y: -30 }}
-            transition={{ duration: 0.5, ease: "easeOut" }}
-            className="absolute -top-12 z-50 flex items-center gap-2 rounded-full px-5 py-1.5 font-redaction text-sm font-extrabold uppercase tracking-widest text-white shadow-xl backdrop-blur-md"
+            exit={{ opacity: 0, scale: 1.15, y: -30 }}
+            transition={{ duration: 0.45, ease: "easeOut" }}
+            className="liquid-glass absolute -top-12 z-50 flex items-center gap-2 rounded-full px-5 py-2 font-redaction text-xs font-black uppercase tracking-widest text-foreground shadow-2xl"
             style={{
-              background: `linear-gradient(135deg, ${tier.primaryColor}, ${tier.secondaryColor})`,
-              boxShadow: `0 0 30px ${tier.glowColor}`,
+              borderColor: tier.primaryColor,
+              boxShadow: `0 0 35px ${tier.glowColor}`,
             }}
           >
-            <Sparkles className="h-4 w-4 animate-spin" />
-            <span>AURA EVOLVED: {tier.name}!</span>
-            <Sparkles className="h-4 w-4 animate-spin" />
+            <Sparkles className="h-4 w-4" style={{ color: tier.primaryColor }} />
+            <span>AURA EVOLVED: {tier.name}</span>
+            <Sparkles className="h-4 w-4" style={{ color: tier.primaryColor }} />
           </motion.div>
         )}
       </AnimatePresence>
@@ -66,22 +57,22 @@ export function StreakAura({ streak, personalBest = 0, isEvolution = false }: St
         {/* Particle Fields */}
         <AuraParticles tier={tier} streak={streak} />
 
-        {/* Outer Rotating Energy Ring (Tier 5+) */}
+        {/* Outer Liquid Ring (Tier 5+) */}
         {tier.level >= 5 && !shouldReduceMotion && (
           <motion.div
             className="absolute rounded-full pointer-events-none"
             style={{
               width: 140 + tier.level * 6,
               height: 140 + tier.level * 6,
-              border: `2px dashed ${tier.secondaryColor}`,
-              opacity: 0.5,
+              border: `1px solid ${tier.primaryColor}`,
+              opacity: 0.35,
             }}
             animate={{ rotate: 360 }}
-            transition={{ duration: 16 - tier.level, repeat: Infinity, ease: "linear" }}
+            transition={{ duration: 18 - tier.level, repeat: Infinity, ease: "linear" }}
           />
         )}
 
-        {/* Inner Pulsing Aura Ring */}
+        {/* Soft Liquid Glow Pulsing Ring */}
         {tier.level > 0 && !shouldReduceMotion && (
           <motion.div
             className="absolute rounded-full pointer-events-none"
@@ -89,33 +80,39 @@ export function StreakAura({ streak, personalBest = 0, isEvolution = false }: St
               width: 110 + tier.level * 4,
               height: 110 + tier.level * 4,
               backgroundColor: tier.glowColor,
+              filter: "blur(24px)",
             }}
             animate={{
-              scale: [1, 1.1, 1],
-              opacity: [0.4, 0.75, 0.4],
+              scale: [0.95, 1.1, 0.95],
+              opacity: [0.3, 0.6, 0.3],
             }}
             transition={{
-              duration: Math.max(1.2, 2.4 - tier.level * 0.15),
+              duration: Math.max(1.4, 2.6 - tier.level * 0.15),
               repeat: Infinity,
               ease: "easeInOut",
             }}
           />
         )}
 
-        {/* Central Streak Counter Disk */}
+        {/* Central Streak Counter Disk - Pure Liquid Frosted Glass */}
         <motion.div
           key={streak}
-          initial={shouldReduceMotion ? {} : { scale: 1.15 }}
+          initial={shouldReduceMotion ? {} : { scale: 1.12 }}
           animate={{ scale: 1 }}
-          transition={{ type: "spring", stiffness: 400, damping: 25 }}
-          className="relative z-10 flex h-24 w-24 flex-col items-center justify-center rounded-full border-2 bg-card/90 backdrop-blur-md transition-all duration-300"
-          style={auraGlowStyle}
+          transition={{ type: "spring", stiffness: 450, damping: 28 }}
+          className="liquid-glass relative z-10 flex h-24 w-24 flex-col items-center justify-center rounded-full transition-all duration-300"
+          style={{
+            borderColor: tier.level > 0 ? tier.primaryColor : undefined,
+          }}
         >
-          <span className="text-[10px] font-bold tracking-wider uppercase text-muted-foreground font-redaction">
+          {/* Specular Highlight Arc */}
+          <div className="pointer-events-none absolute inset-x-3 top-1 h-[1px] bg-gradient-to-r from-transparent via-white/30 to-transparent" />
+
+          <span className="text-[10px] font-bold tracking-widest uppercase text-muted-foreground font-redaction">
             STREAK
           </span>
           <span
-            className="font-redaction text-4xl font-extrabold tabular-nums tracking-tighter"
+            className="font-redaction text-4xl font-black tabular-nums tracking-tighter"
             style={{ color: tier.level > 0 ? tier.primaryColor : "inherit" }}
           >
             {streak}

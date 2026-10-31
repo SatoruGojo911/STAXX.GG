@@ -12,9 +12,8 @@ import {
   Shield,
   Zap,
   Crown,
-  HelpCircle,
 } from "lucide-react";
-import { Button, buttonVariants } from "@/components/ui/button";
+import { buttonVariants } from "@/components/ui/button";
 import { api } from "@/lib/api";
 import { LeaderboardEntry } from "@/types";
 import { getAuraTier } from "@/lib/aura-config";
@@ -43,17 +42,17 @@ export default function LandingPage() {
     <div className="flex flex-col items-center w-full overflow-hidden font-redaction">
       {/* Hero Section */}
       <section className="relative w-full py-16 sm:py-24 px-4 sm:px-6 flex flex-col items-center text-center">
-        {/* Background glow effects */}
-        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[500px] h-[300px] bg-primary/15 blur-[120px] rounded-full pointer-events-none" />
+        {/* Subtle Liquid Glow */}
+        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[550px] h-[320px] bg-primary/10 blur-[130px] rounded-full pointer-events-none" />
 
-        {/* Slogan Pill */}
+        {/* Slogan Pill - Liquid Glass */}
         <motion.div
           initial={{ opacity: 0, y: -10 }}
           animate={{ opacity: 1, y: 0 }}
-          className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full border border-primary/30 bg-primary/10 text-primary text-xs font-bold uppercase tracking-widest mb-6"
+          className="liquid-glass inline-flex items-center gap-2 px-4 py-1.5 rounded-full text-xs font-bold uppercase tracking-widest mb-6"
         >
-          <Sparkles className="h-3.5 w-3.5 fill-primary" />
-          <span>PLAY. GUESS. STAXX.</span>
+          <Sparkles className="h-3.5 w-3.5 text-primary" />
+          <span className="text-foreground">PLAY. GUESS. STAXX.</span>
         </motion.div>
 
         {/* Main Title & Wordmark */}
@@ -64,7 +63,7 @@ export default function LandingPage() {
           className="text-5xl sm:text-7xl lg:text-8xl font-black tracking-tight text-foreground max-w-4xl"
         >
           Higher or Lower, <br />
-          <span className="text-transparent bg-clip-text bg-gradient-to-r from-primary via-blue-500 to-amber-500">
+          <span className="text-transparent bg-clip-text bg-gradient-to-r from-foreground via-primary to-sky-400">
             Pokémon Edition.
           </span>
         </motion.h1>
@@ -74,9 +73,9 @@ export default function LandingPage() {
           initial={{ opacity: 0, y: 15 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.4, delay: 0.2 }}
-          className="mt-6 text-lg sm:text-xl text-muted-foreground max-w-2xl leading-relaxed"
+          className="mt-6 text-base sm:text-xl text-muted-foreground max-w-2xl leading-relaxed"
         >
-          Compare base battle stats, Base Stat Totals, height, and weight across {pokemonCount ? `${pokemonCount}+` : "hundreds of"} official Pokémon and alternate forms. Build your streak and evolve your aura.
+          Compare base battle stats, BST, height, and weight across {pokemonCount ? `${pokemonCount}+` : "hundreds of"} official Pokémon and forms. Build your streak and evolve your aura.
         </motion.p>
 
         {/* CTA Buttons */}
@@ -91,7 +90,7 @@ export default function LandingPage() {
             className={buttonVariants({
               size: "lg",
               className:
-                "w-full sm:w-auto h-14 px-8 rounded-2xl bg-primary hover:bg-primary/90 text-primary-foreground font-black text-lg shadow-xl shadow-primary/20 tracking-wide transition-transform hover:scale-105 active:scale-95 flex items-center justify-center gap-2",
+                "w-full sm:w-auto h-14 px-8 rounded-2xl bg-primary hover:bg-primary/90 text-primary-foreground font-black text-base shadow-xl tracking-wide transition-transform hover:scale-105 active:scale-95 flex items-center justify-center gap-2",
             })}
           >
             <Swords className="h-5 w-5" /> Start Playing Free
@@ -103,10 +102,10 @@ export default function LandingPage() {
               variant: "outline",
               size: "lg",
               className:
-                "w-full sm:w-auto h-14 px-8 rounded-2xl border-border hover:bg-secondary font-bold text-base transition-transform hover:scale-105 flex items-center justify-center gap-2",
+                "liquid-glass w-full sm:w-auto h-14 px-8 rounded-2xl font-bold text-base transition-transform hover:scale-105 flex items-center justify-center gap-2",
             })}
           >
-            <Trophy className="h-5 w-5 text-amber-500" /> View Leaderboards
+            <Trophy className="h-5 w-5 text-amber-400" /> View Leaderboards
           </Link>
         </motion.div>
       </section>
@@ -115,34 +114,34 @@ export default function LandingPage() {
       <section className="w-full max-w-5xl px-4 sm:px-6 py-12">
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
           {/* Feature 1 */}
-          <div className="flex flex-col items-center text-center p-6 rounded-3xl border border-border/60 bg-card/60 backdrop-blur-xs shadow-sm">
-            <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-amber-500/10 text-amber-500 mb-4">
+          <div className="liquid-glass-card flex flex-col items-center text-center p-7 rounded-3xl">
+            <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-amber-500/10 text-amber-400 mb-4 border border-amber-500/20">
               <Flame className="h-6 w-6" />
             </div>
-            <h3 className="text-xl font-bold text-foreground">Evolving Aura</h3>
-            <p className="mt-2 text-sm text-muted-foreground">
+            <h3 className="text-xl font-black text-foreground">Evolving Aura</h3>
+            <p className="mt-2 text-xs text-muted-foreground leading-relaxed">
               Watch your signature aura transform through 8 visual tiers from Spark to Godlike as your streak climbs.
             </p>
           </div>
 
           {/* Feature 2 */}
-          <div className="flex flex-col items-center text-center p-6 rounded-3xl border border-border/60 bg-card/60 backdrop-blur-xs shadow-sm">
-            <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-primary/10 text-primary mb-4">
+          <div className="liquid-glass-card flex flex-col items-center text-center p-7 rounded-3xl">
+            <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-primary/10 text-primary mb-4 border border-primary/20">
               <Zap className="h-6 w-6" />
             </div>
-            <h3 className="text-xl font-bold text-foreground">9 Stat Categories</h3>
-            <p className="mt-2 text-sm text-muted-foreground">
+            <h3 className="text-xl font-black text-foreground">9 Stat Categories</h3>
+            <p className="mt-2 text-xs text-muted-foreground leading-relaxed">
               HP, Attack, Defence, Sp. Atk, Sp. Def, Speed, Base Stat Total, Height, and Weight. No two rounds are the same.
             </p>
           </div>
 
           {/* Feature 3 */}
-          <div className="flex flex-col items-center text-center p-6 rounded-3xl border border-border/60 bg-card/60 backdrop-blur-xs shadow-sm">
-            <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-emerald-500/10 text-emerald-500 mb-4">
+          <div className="liquid-glass-card flex flex-col items-center text-center p-7 rounded-3xl">
+            <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-emerald-500/10 text-emerald-400 mb-4 border border-emerald-500/20">
               <Crown className="h-6 w-6" />
             </div>
-            <h3 className="text-xl font-bold text-foreground">Global Competition</h3>
-            <p className="mt-2 text-sm text-muted-foreground">
+            <h3 className="text-xl font-black text-foreground">Global Competition</h3>
+            <p className="mt-2 text-xs text-muted-foreground leading-relaxed">
               Compete on All-Time, Daily, and Weekly leaderboards. Instant guest play with optional Google sign-in.
             </p>
           </div>
@@ -153,7 +152,7 @@ export default function LandingPage() {
       <section className="w-full max-w-4xl px-4 sm:px-6 py-12 flex flex-col items-center">
         <div className="flex items-center justify-between w-full mb-6">
           <div className="flex items-center gap-2">
-            <Trophy className="h-6 w-6 text-amber-500" />
+            <Trophy className="h-6 w-6 text-amber-400" />
             <h2 className="text-2xl sm:text-3xl font-black text-foreground">All-Time Top Streaks</h2>
           </div>
           <Link
@@ -168,12 +167,12 @@ export default function LandingPage() {
           </Link>
         </div>
 
-        <div className="w-full rounded-2xl border border-border/60 bg-card/80 overflow-hidden shadow-md divide-y divide-border/40">
+        <div className="liquid-glass-card w-full rounded-3xl overflow-hidden divide-y divide-border/40">
           {topPlayers.length > 0 ? (
             topPlayers.map((player) => {
               const tier = getAuraTier(player.score);
               return (
-                <div key={player.rank} className="flex items-center justify-between p-4">
+                <div key={player.rank} className="flex items-center justify-between p-4 px-6 hover:bg-secondary/30 transition-colors">
                   <div className="flex items-center gap-3">
                     <span className="flex h-7 w-7 items-center justify-center rounded-full bg-secondary text-xs font-bold tabular-nums">
                       #{player.rank}

@@ -52,7 +52,7 @@ export function LeaderboardTable({ entries, currentUserId }: LeaderboardTablePro
   };
 
   return (
-    <div className="w-full overflow-hidden rounded-2xl border border-border/60 bg-card/80 shadow-md font-redaction">
+    <div className="liquid-glass-card w-full overflow-hidden rounded-3xl font-redaction">
       <div className="divide-y divide-border/40">
         {entries.map((entry) => {
           const isCurrentUser = currentUserId && entry.user_id === currentUserId;

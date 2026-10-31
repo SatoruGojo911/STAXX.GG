@@ -35,51 +35,54 @@ export function GameControls({ onGuess, disabled }: GameControlsProps) {
   return (
     <div className="flex flex-col items-center gap-3 w-full max-w-md font-redaction">
       <div className="grid grid-cols-3 gap-3 w-full">
-        {/* HIGHER */}
-        <motion.div whileHover={disabled ? {} : { scale: 1.02 }} whileTap={disabled ? {} : { scale: 0.96 }}>
-          <Button
+        {/* HIGHER Button */}
+        <motion.div whileHover={disabled ? {} : { scale: 1.02 }} whileTap={disabled ? {} : { scale: 0.97 }}>
+          <button
             type="button"
             disabled={disabled}
             onClick={() => onGuess("higher")}
-            className="flex flex-col items-center justify-center h-20 w-full rounded-2xl bg-emerald-600 hover:bg-emerald-500 text-white font-extrabold shadow-md transition-all active:shadow-xs disabled:opacity-50"
+            className="liquid-glass relative flex flex-col items-center justify-center h-20 w-full rounded-2xl bg-emerald-500/10 hover:bg-emerald-500/20 text-emerald-400 border border-emerald-500/30 font-black shadow-lg transition-all disabled:opacity-40 cursor-pointer overflow-hidden group"
           >
-            <ArrowUp className="h-6 w-6 stroke-[3]" />
-            <span className="text-sm tracking-wider uppercase mt-1">HIGHER</span>
-            <span className="text-[10px] opacity-75 font-mono">[↑ / H]</span>
-          </Button>
+            <div className="pointer-events-none absolute inset-x-4 top-0 h-[1px] bg-gradient-to-r from-transparent via-emerald-400/40 to-transparent" />
+            <ArrowUp className="h-5 w-5 stroke-[2.5] transition-transform group-hover:-translate-y-0.5" />
+            <span className="text-xs tracking-wider uppercase mt-1">HIGHER</span>
+            <span className="text-[10px] text-muted-foreground font-mono">[↑ / H]</span>
+          </button>
         </motion.div>
 
-        {/* EQUAL */}
-        <motion.div whileHover={disabled ? {} : { scale: 1.02 }} whileTap={disabled ? {} : { scale: 0.96 }}>
-          <Button
+        {/* EQUAL Button */}
+        <motion.div whileHover={disabled ? {} : { scale: 1.02 }} whileTap={disabled ? {} : { scale: 0.97 }}>
+          <button
             type="button"
             disabled={disabled}
             onClick={() => onGuess("equal")}
-            className="flex flex-col items-center justify-center h-20 w-full rounded-2xl bg-amber-600 hover:bg-amber-500 text-white font-extrabold shadow-md transition-all active:shadow-xs disabled:opacity-50"
+            className="liquid-glass relative flex flex-col items-center justify-center h-20 w-full rounded-2xl bg-amber-500/10 hover:bg-amber-500/20 text-amber-400 border border-amber-500/30 font-black shadow-lg transition-all disabled:opacity-40 cursor-pointer overflow-hidden group"
           >
-            <Equal className="h-6 w-6 stroke-[3]" />
-            <span className="text-sm tracking-wider uppercase mt-1">EQUAL</span>
-            <span className="text-[10px] opacity-75 font-mono">[→ / E]</span>
-          </Button>
+            <div className="pointer-events-none absolute inset-x-4 top-0 h-[1px] bg-gradient-to-r from-transparent via-amber-400/40 to-transparent" />
+            <Equal className="h-5 w-5 stroke-[2.5]" />
+            <span className="text-xs tracking-wider uppercase mt-1">EQUAL</span>
+            <span className="text-[10px] text-muted-foreground font-mono">[→ / E]</span>
+          </button>
         </motion.div>
 
-        {/* LOWER */}
-        <motion.div whileHover={disabled ? {} : { scale: 1.02 }} whileTap={disabled ? {} : { scale: 0.96 }}>
-          <Button
+        {/* LOWER Button */}
+        <motion.div whileHover={disabled ? {} : { scale: 1.02 }} whileTap={disabled ? {} : { scale: 0.97 }}>
+          <button
             type="button"
             disabled={disabled}
             onClick={() => onGuess("lower")}
-            className="flex flex-col items-center justify-center h-20 w-full rounded-2xl bg-rose-600 hover:bg-rose-500 text-white font-extrabold shadow-md transition-all active:shadow-xs disabled:opacity-50"
+            className="liquid-glass relative flex flex-col items-center justify-center h-20 w-full rounded-2xl bg-rose-500/10 hover:bg-rose-500/20 text-rose-400 border border-rose-500/30 font-black shadow-lg transition-all disabled:opacity-40 cursor-pointer overflow-hidden group"
           >
-            <ArrowDown className="h-6 w-6 stroke-[3]" />
-            <span className="text-sm tracking-wider uppercase mt-1">LOWER</span>
-            <span className="text-[10px] opacity-75 font-mono">[↓ / L]</span>
-          </Button>
+            <div className="pointer-events-none absolute inset-x-4 top-0 h-[1px] bg-gradient-to-r from-transparent via-rose-400/40 to-transparent" />
+            <ArrowDown className="h-5 w-5 stroke-[2.5] transition-transform group-hover:translate-y-0.5" />
+            <span className="text-xs tracking-wider uppercase mt-1">LOWER</span>
+            <span className="text-[10px] text-muted-foreground font-mono">[↓ / L]</span>
+          </button>
         </motion.div>
       </div>
 
       <p className="text-[11px] text-muted-foreground text-center">
-        Guess if the right Pokémon has a higher, lower, or equal stat
+        Predict if the right Pokémon has a higher, lower, or equal stat
       </p>
     </div>
   );

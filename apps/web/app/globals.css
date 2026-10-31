@@ -26,47 +26,58 @@
 
 :root {
   --font-redaction: 'Redaction 35', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
-  --background: #fbfbf9;
-  --foreground: #18181b;
-  --card: #ffffff;
-  --card-foreground: #18181b;
-  --popover: #ffffff;
-  --popover-foreground: #18181b;
-  --primary: #2563eb;
+  
+  /* Light theme: Pure clean slight-white + liquid frosted glass */
+  --background: #fbfbfc;
+  --foreground: #121214;
+  --card: rgba(255, 255, 255, 0.85);
+  --card-foreground: #121214;
+  --popover: rgba(255, 255, 255, 0.92);
+  --popover-foreground: #121214;
+  --primary: #1d4ed8;
   --primary-foreground: #ffffff;
-  --secondary: #f4f4f5;
-  --secondary-foreground: #18181b;
-  --muted: #f4f4f5;
-  --muted-foreground: #71717a;
+  --secondary: rgba(0, 0, 0, 0.04);
+  --secondary-foreground: #121214;
+  --muted: rgba(0, 0, 0, 0.04);
+  --muted-foreground: #64748b;
+  --accent: #d97706;
+  --accent-foreground: #ffffff;
+  --destructive: #dc2626;
+  --destructive-foreground: #ffffff;
+  --border: rgba(0, 0, 0, 0.08);
+  --input: rgba(0, 0, 0, 0.08);
+  --ring: #1d4ed8;
+
+  --glass-bg: rgba(255, 255, 255, 0.75);
+  --glass-border: rgba(0, 0, 0, 0.07);
+  --glass-shadow: 0 10px 30px -5px rgba(0, 0, 0, 0.05), inset 0 1px 0 0 rgba(255, 255, 255, 0.8);
+}
+
+.dark {
+  /* Dark theme: Clean deep black / #1e1e1e + frosted liquid glass (NO purple) */
+  --background: #141414;
+  --foreground: #f5f5f7;
+  --card: rgba(30, 30, 30, 0.7);
+  --card-foreground: #f5f5f7;
+  --popover: rgba(26, 26, 26, 0.92);
+  --popover-foreground: #f5f5f7;
+  --primary: #3b82f6;
+  --primary-foreground: #ffffff;
+  --secondary: rgba(255, 255, 255, 0.06);
+  --secondary-foreground: #f5f5f7;
+  --muted: rgba(255, 255, 255, 0.06);
+  --muted-foreground: #a1a1aa;
   --accent: #f59e0b;
   --accent-foreground: #ffffff;
   --destructive: #ef4444;
   --destructive-foreground: #ffffff;
-  --border: #e4e4e7;
-  --input: #e4e4e7;
-  --ring: #2563eb;
-}
+  --border: rgba(255, 255, 255, 0.1);
+  --input: rgba(255, 255, 255, 0.1);
+  --ring: rgba(255, 255, 255, 0.25);
 
-.dark {
-  --background: #090d16;
-  --foreground: #f4f4f5;
-  --card: #111726;
-  --card-foreground: #f4f4f5;
-  --popover: #111726;
-  --popover-foreground: #f4f4f5;
-  --primary: #3b82f6;
-  --primary-foreground: #ffffff;
-  --secondary: #1a2236;
-  --secondary-foreground: #f4f4f5;
-  --muted: #1a2236;
-  --muted-foreground: #94a3b8;
-  --accent: #f59e0b;
-  --accent-foreground: #ffffff;
-  --destructive: #f43f5e;
-  --destructive-foreground: #ffffff;
-  --border: #1e293b;
-  --input: #1e293b;
-  --ring: #3b82f6;
+  --glass-bg: rgba(28, 28, 30, 0.65);
+  --glass-border: rgba(255, 255, 255, 0.12);
+  --glass-shadow: 0 12px 36px 0 rgba(0, 0, 0, 0.5), inset 0 1px 0 0 rgba(255, 255, 255, 0.14);
 }
 
 body {
@@ -81,4 +92,21 @@ body {
 
 .tabular-nums {
   font-variant-numeric: tabular-nums;
+}
+
+/* Liquid Glass Utilities */
+.liquid-glass {
+  background: var(--glass-bg);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border: 1px solid var(--glass-border);
+  box-shadow: var(--glass-shadow);
+}
+
+.liquid-glass-card {
+  background: var(--glass-bg);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 1px solid var(--glass-border);
+  box-shadow: var(--glass-shadow);
 }

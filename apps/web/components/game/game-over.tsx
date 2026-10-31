@@ -23,7 +23,7 @@ export function GameOver({
   const tier = getAuraTier(finalStreak);
 
   const handleShare = async () => {
-    const text = `I just reached a streak of ${finalStreak} with the ${tier.name} Aura on staxx.gg! ⚡\nCan you beat my record?\nPlay now: https://staxx.gg`;
+    const text = `I reached a streak of ${finalStreak} with the ${tier.name} Aura on staxx.gg! ⚡\nCan you beat my record?\nPlay now: https://staxx.gg`;
     if (navigator.clipboard) {
       await navigator.clipboard.writeText(text);
       setCopied(true);
@@ -33,19 +33,22 @@ export function GameOver({
 
   return (
     <motion.div
-      initial={{ opacity: 0, scale: 0.9 }}
+      initial={{ opacity: 0, scale: 0.94 }}
       animate={{ opacity: 1, scale: 1 }}
-      className="flex flex-col items-center justify-center p-6 text-center font-redaction max-w-md w-full rounded-3xl border-2 border-border/80 bg-card/95 shadow-2xl backdrop-blur-md"
+      className="liquid-glass-card relative flex flex-col items-center justify-center p-8 text-center font-redaction max-w-md w-full rounded-3xl overflow-hidden"
     >
+      {/* Top highlight bar */}
+      <div className="pointer-events-none absolute inset-x-8 top-0 h-[1px] bg-gradient-to-r from-transparent via-white/25 to-transparent" />
+
       {/* Icon / Celebration */}
       <div
-        className="mb-3 flex h-16 w-16 items-center justify-center rounded-full border-2 shadow-inner"
+        className="mb-3 flex h-16 w-16 items-center justify-center rounded-2xl border"
         style={{
           borderColor: tier.primaryColor,
           backgroundColor: tier.glowColor,
         }}
       >
-        <Flame className="h-8 w-8" style={{ color: tier.primaryColor }} />
+        <Flame className="h-7 w-7" style={{ color: tier.primaryColor }} />
       </div>
 
       <h2 className="text-2xl font-black uppercase tracking-tight text-foreground">
@@ -54,15 +57,15 @@ export function GameOver({
 
       {/* New PB Callout */}
       {isNewPersonalBest && finalStreak > 0 && (
-        <div className="mt-2 flex items-center gap-1.5 px-3 py-1 rounded-full bg-amber-500/20 text-amber-400 border border-amber-500/30 text-xs font-bold uppercase tracking-wider animate-pulse">
+        <div className="mt-2 flex items-center gap-1.5 px-3 py-1 rounded-full bg-amber-500/15 text-amber-400 border border-amber-500/30 text-xs font-bold uppercase tracking-wider animate-pulse">
           <Sparkles className="h-3.5 w-3.5" />
           <span>NEW PERSONAL BEST!</span>
         </div>
       )}
 
       {/* Final Streak Count */}
-      <div className="my-5 flex flex-col items-center justify-center">
-        <span className="text-xs uppercase font-bold tracking-widest text-muted-foreground">
+      <div className="my-6 flex flex-col items-center justify-center">
+        <span className="text-[11px] uppercase font-bold tracking-widest text-muted-foreground">
           FINAL STREAK
         </span>
         <span
@@ -72,21 +75,21 @@ export function GameOver({
           {finalStreak}
         </span>
         <div className={`mt-2 px-3 py-0.5 rounded-full border text-xs font-bold uppercase ${tier.badgeClass}`}>
-          {tier.name} Aura Reached
+          {tier.name} Aura
         </div>
       </div>
 
       {/* Stats summary */}
-      <div className="flex w-full items-center justify-around rounded-2xl bg-secondary/60 p-4 border border-border/40 mb-6 text-center">
+      <div className="flex w-full items-center justify-around rounded-2xl bg-secondary/40 p-4 border border-border/50 mb-6 text-center">
         <div className="flex flex-col">
-          <span className="text-[11px] text-muted-foreground uppercase font-bold">Personal Best</span>
+          <span className="text-[10px] text-muted-foreground uppercase font-bold">Personal Best</span>
           <span className="text-xl font-bold tabular-nums text-foreground">
             {Math.max(finalStreak, personalBest)}
           </span>
         </div>
         <div className="h-8 w-[1px] bg-border" />
         <div className="flex flex-col">
-          <span className="text-[11px] text-muted-foreground uppercase font-bold">Aura Level</span>
+          <span className="text-[10px] text-muted-foreground uppercase font-bold">Aura Level</span>
           <span className="text-xl font-bold text-foreground">
             {tier.level} / 8
           </span>
@@ -98,18 +101,18 @@ export function GameOver({
         <Button
           onClick={onPlayAgain}
           size="lg"
-          className="w-full h-12 rounded-xl bg-primary hover:bg-primary/90 text-primary-foreground font-bold tracking-wide text-base shadow-md"
+          className="w-full h-12 rounded-xl bg-primary hover:bg-primary/90 text-primary-foreground font-black tracking-wide text-sm shadow-md"
         >
-          <RotateCcw className="mr-2 h-5 w-5" /> Play Again
+          <RotateCcw className="mr-2 h-4 w-4" /> Play Again
         </Button>
 
         <Button
           onClick={handleShare}
           variant="outline"
           size="lg"
-          className="w-full sm:w-auto h-12 rounded-xl border-border hover:bg-secondary font-bold text-sm"
+          className="w-full sm:w-auto h-12 rounded-xl border-border hover:bg-secondary font-bold text-xs"
         >
-          {copied ? <Check className="mr-1.5 h-4 w-4 text-emerald-500" /> : <Share2 className="mr-1.5 h-4 w-4" />}
+          {copied ? <Check className="mr-1.5 h-4 w-4 text-emerald-400" /> : <Share2 className="mr-1.5 h-4 w-4" />}
           {copied ? "Copied!" : "Share"}
         </Button>
       </div>

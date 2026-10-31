@@ -1,0 +1,84 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  backend:
+    name: Backend Tests
+    runs-on: ubuntu-latest
+    
+    services:
+      mongodb:
+        image: mongo:7
+        ports:
+          - 27017:27017
+        env:
+          MONGO_INITDB_ROOT_USERNAME: test
+          MONGO_INITDB_ROOT_PASSWORD: test
+      redis:
+        image: redis:7-alpine
+        ports:
+          - 6379:6379
+
+    steps:
+      - uses: actions/checkout@v4
+      
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+          cache: pip
+          cache-dependency-path: apps/api/requirements.txt
+      
+      - name: Install dependencies
+        run: |
+          cd apps/api
+          pip install -r requirements.txt
+      
+      - name: Run tests
+        env:
+          ENVIRONMENT: test
+          MONGODB_URI: mongodb://test:test@localhost:27017/staxx_test?authSource=admin
+          MONGODB_DATABASE: staxx_test
+          REDIS_URL: redis://localhost:6379/1
+          GOOGLE_CLIENT_ID: test-client-id
+          SESSION_SECRET: test-secret-key-must-be-at-least-32-characters
+          FRONTEND_URL: http://localhost:3000
+          COOKIE_DOMAIN: localhost
+        run: |
+          cd apps/api
+          pytest -v --tb=short
+
+  frontend:
+    name: Frontend Build
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+      
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: npm
+          cache-dependency-path: apps/web/package-lock.json
+      
+      - name: Install dependencies
+        run: |
+          cd apps/web
+          npm ci
+      
+      - name: Lint
+        run: |
+          cd apps/web
+          npm run lint
+      
+      - name: Build
+        env:
+          NEXT_PUBLIC_API_URL: https://api.staxx.gg/api/v1
+          NEXT_PUBLIC_GOOGLE_CLIENT_ID: placeholder
+        run: |
+          cd apps/web
+          npm run build

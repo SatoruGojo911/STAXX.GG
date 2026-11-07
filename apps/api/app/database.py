@@ -15,6 +15,15 @@ if TYPE_CHECKING:
 
 logger = logging.getLogger(__name__)
 
+
+def _get_ca_file() -> str | None:
+    """Return the certifi CA bundle path for TLS connections to Atlas."""
+    try:
+        import certifi
+        return certifi.where()
+    except ImportError:
+        return None
+
 # Module-level singletons – initialised in startup, torn down in shutdown.
 _client: AsyncIOMotorClient | None = None
 _db: AsyncIOMotorDatabase | None = None
@@ -32,7 +41,10 @@ async def connect_db() -> None:
     global _client, _db  # noqa: PLW0603
 
     logger.info("Connecting to MongoDB …")
-    _client = AsyncIOMotorClient(settings.MONGODB_URI)
+    _client = AsyncIOMotorClient(
+        settings.MONGODB_URI,
+        tlsCAFile=_get_ca_file(),
+    )
     _db = _client[settings.MONGODB_DATABASE]
 
     # ---------- ensure indexes ----------

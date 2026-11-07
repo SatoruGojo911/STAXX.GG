@@ -32,6 +32,41 @@ services:
       timeout: 5s
       retries: 5
 
+  api:
+    build:
+      context: ./apps/api
+      dockerfile: Dockerfile
+    container_name: staxx-api
+    ports:
+      - "8000:8000"
+    environment:
+      ENVIRONMENT: development
+      FRONTEND_URL: http://localhost:3000
+      MONGODB_URI: mongodb://staxx:staxx_dev_password@mongodb:27017/staxx?authSource=admin
+      MONGODB_DATABASE: staxx
+      REDIS_URL: redis://redis:6379/0
+      SESSION_SECRET: dev_secret_key_at_least_32_characters_long
+      GOOGLE_CLIENT_ID: ""
+    depends_on:
+      mongodb:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+
+  web:
+    build:
+      context: ./apps/web
+      dockerfile: Dockerfile
+      args:
+        NEXT_PUBLIC_API_URL: http://localhost:8000/api/v1
+    container_name: staxx-web
+    ports:
+      - "3000:3000"
+    environment:
+      NODE_ENV: production
+    depends_on:
+      - api
+
 volumes:
   mongodb_data:
   redis_data:

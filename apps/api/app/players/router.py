@@ -36,6 +36,8 @@ async def players_me_stats(current_user: dict = Depends(get_current_user)):
             "total_correct": 0,
             "total_incorrect": 0,
             "best_streak": 0,
+            "best_streak_guesser": 0,
+            "games_played_guesser": 0,
             "current_streak": 0,
             "average_streak": 0.0,
             "last_played": None,

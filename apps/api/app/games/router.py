@@ -12,6 +12,8 @@ from app.games.service import (
     get_game_result,
     process_guess,
     start_game,
+    start_ability_game,
+    process_ability_guess,
 )
 from app.models.game import GuessRequest
 
@@ -27,6 +29,27 @@ async def games_start(current_user: dict = Depends(get_current_user)):
     except ValueError as exc:
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=str(exc))
     return result
+
+
+@router.post("/abilities/start", status_code=status.HTTP_201_CREATED)
+async def abilities_start(current_user: dict = Depends(get_current_user)):
+    try:
+        return await start_ability_game(current_user["user_id"])
+    except ValueError as exc:
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=str(exc))
+
+
+@router.post("/abilities/{game_id}/guess")
+async def abilities_guess(game_id: str, body: dict, current_user: dict = Depends(get_current_user)):
+    pokemon_id = body.get("pokemon_id")
+    if not isinstance(pokemon_id, str):
+        raise HTTPException(status_code=status.HTTP_422_UNPROCESSABLE_ENTITY, detail="pokemon_id is required")
+    try:
+        return await process_ability_guess(game_id, current_user["user_id"], pokemon_id)
+    except ValueError as exc:
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=str(exc))
+    except PermissionError as exc:
+        raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail=str(exc))
 
 
 @router.post("/{game_id}/guess")

@@ -146,6 +146,15 @@ def build_pokemon_public(pokemon: dict[str, Any]) -> dict[str, Any]:
     }
 
 
+def build_pokemon_with_abilities(pokemon: dict[str, Any]) -> dict[str, Any]:
+    """Build a safe ability-quiz prompt without exposing the answer name."""
+    return {
+        "abilities": pokemon.get("abilities", []),
+        "types": pokemon.get("types", []),
+        "artwork_url": pokemon.get("artwork_url"),
+    }
+
+
 def build_pokemon_with_stat(pokemon: dict[str, Any], category: str) -> dict[str, Any]:
     """Build public pokemon data plus the revealed stat value and display info."""
     data = build_pokemon_public(pokemon)

@@ -186,7 +186,12 @@ class PokeAPIClient:
 
     async def __aenter__(self) -> "PokeAPIClient":
         timeout = aiohttp.ClientTimeout(total=30, connect=10)
-        self._session = aiohttp.ClientSession(timeout=timeout)
+        # Some PokeAPI edge nodes return Zstandard by default. Explicitly request
+        # universally-supported encodings so imports also work without a zstd codec.
+        self._session = aiohttp.ClientSession(
+            timeout=timeout,
+            headers={"Accept-Encoding": "gzip, deflate"},
+        )
         return self
 
     async def __aexit__(self, *args: Any) -> None:
@@ -269,6 +274,13 @@ def extract_pokemon_entry(
         for t in sorted(pokemon_data.get("types", []), key=lambda t: t["slot"])
     ]
 
+    # Abilities (including hidden abilities, so each prompt shows the complete set)
+    abilities = [
+        ability["ability"]["name"].replace("-", " ").title()
+        for ability in sorted(pokemon_data.get("abilities", []), key=lambda ability: ability["slot"])
+        if ability.get("ability", {}).get("name")
+    ]
+
     # Stats
     stat_map: dict[str, int] = {}
     api_stat_names = {
@@ -316,6 +328,7 @@ def extract_pokemon_entry(
         "form_category": form_category,
         "generation": generation,
         "types": types,
+        "abilities": abilities,
         "stats": stats,
         "bst": bst,
         "height": height,

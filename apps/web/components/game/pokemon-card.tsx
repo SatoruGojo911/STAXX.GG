@@ -58,14 +58,13 @@ export function PokemonCard({
       initial={{ opacity: 0, scale: 0.96 }}
       animate={{ opacity: 1, scale: 1 }}
       transition={{ duration: 0.3 }}
-      className="liquid-glass-card relative flex flex-col items-center justify-between w-full max-w-sm rounded-3xl p-6 transition-all duration-300"
+      className="liquid-glass-card relative flex flex-col items-center justify-between w-full max-w-sm rounded-none p-4 transition-all duration-300 sm:p-5"
     >
-      {/* Top Specular Liquid Highlight Bar */}
-      <div className="pointer-events-none absolute inset-x-8 top-0 h-[1px] bg-gradient-to-r from-transparent via-white/20 to-transparent" />
+      <div className="pointer-events-none absolute inset-x-6 top-0 h-1 bg-primary/70" />
 
       {/* Position Tag & Form Tag */}
-      <div className="absolute top-5 left-5 flex items-center gap-2">
-        <span className="flex h-7 w-7 items-center justify-center rounded-full bg-secondary/80 border border-border text-[11px] font-bold text-foreground font-redaction">
+      <div className="absolute top-3 left-3 flex items-center gap-2 sm:top-4 sm:left-4">
+        <span className="flex h-6 w-6 items-center justify-center rounded-full bg-secondary/80 border border-border text-[10px] font-bold text-foreground font-redaction">
           {position}
         </span>
         {pokemon.form_name && (
@@ -76,14 +75,14 @@ export function PokemonCard({
       </div>
 
       {/* Pokémon Types */}
-      <div className="absolute top-5 right-5 flex items-center gap-1.5">
+      <div className="absolute top-3 right-3 flex items-center gap-1 sm:top-4 sm:right-4">
         {pokemon.types?.map((t) => {
           const tLower = t.toLowerCase();
           const tStyle = TYPE_COLORS[tLower] || TYPE_COLORS.normal;
           return (
             <span
               key={t}
-              className={`px-2.5 py-0.5 rounded-full text-[10px] font-bold font-redaction uppercase border ${tStyle.bg} ${tStyle.border} ${tStyle.text}`}
+              className={`px-2 py-0.5 rounded-full text-[9px] font-bold font-redaction uppercase border ${tStyle.bg} ${tStyle.border} ${tStyle.text}`}
             >
               {t}
             </span>
@@ -92,7 +91,7 @@ export function PokemonCard({
       </div>
 
       {/* Pokémon Artwork with subtle liquid shadow */}
-      <div className="relative my-6 flex h-48 w-48 sm:h-52 sm:w-52 items-center justify-center">
+      <div className="relative my-3 flex h-32 w-32 sm:my-4 sm:h-36 sm:w-36 items-center justify-center">
         <div
           className="absolute inset-2 rounded-full blur-2xl opacity-20"
           style={{ backgroundColor: typeStyle.glow }}
@@ -108,18 +107,18 @@ export function PokemonCard({
 
       {/* Pokémon Name & Number */}
       <div className="flex flex-col items-center gap-1 text-center w-full">
-        <h3 className="font-redaction text-2xl font-black tracking-tight text-foreground line-clamp-1">
+        <h3 className="font-redaction text-xl font-black tracking-tight text-foreground line-clamp-1 sm:text-2xl">
           {pokemon.display_name}
         </h3>
         {pokemon.species_id && (
-          <span className="text-xs text-muted-foreground font-mono">
+          <span className="text-[10px] text-muted-foreground font-mono">
             #{String(pokemon.species_id).padStart(4, "0")}
           </span>
         )}
       </div>
 
       {/* Stat Value Container - Frosted Glass Bar */}
-      <div className="mt-5 flex w-full flex-col items-center justify-center rounded-2xl bg-secondary/40 p-4 border border-border/50">
+      <div className="mt-3 flex w-full flex-col items-center justify-center border border-border bg-secondary/40 p-2.5 sm:p-3">
         <span className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground font-redaction">
           {statCategory.replace("_", " ")}
         </span>
@@ -134,7 +133,7 @@ export function PokemonCard({
               className="flex items-center gap-2 py-1 text-muted-foreground"
             >
               <HelpCircle className="h-5 w-5 animate-pulse text-primary" />
-              <span className="font-redaction text-2xl font-bold tracking-widest text-muted-foreground/80">???</span>
+              <span className="font-redaction text-xl font-bold tracking-widest text-muted-foreground/80">???</span>
             </motion.div>
           ) : (
             <motion.div
@@ -144,7 +143,7 @@ export function PokemonCard({
               transition={{ type: "spring", stiffness: 350, damping: 25 }}
               className="flex items-baseline gap-1 py-1"
             >
-              <span className="font-redaction text-3xl font-black tabular-nums tracking-tight text-foreground">
+              <span className="font-redaction text-2xl font-black tabular-nums tracking-tight text-foreground">
                 {displayValue}
               </span>
               {statUnit && (

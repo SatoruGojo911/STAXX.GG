@@ -39,6 +39,36 @@ export interface GameRound {
   pokemon_b: PokemonPublic;
 }
 
+export interface AbilityGameRound {
+  game_id: string;
+  round_number: number;
+  mode: "abilities";
+  personal_best?: number;
+  prompt: { abilities: string[]; types: string[]; artwork_url?: string | null };
+  options: PokemonPublic[];
+}
+
+export interface PlayerStats {
+  user_id: string;
+  games_played: number;
+  total_correct: number;
+  total_incorrect: number;
+  best_streak: number;
+  best_streak_guesser: number;
+  games_played_guesser: number;
+  current_streak: number;
+  current_streak_guesser?: number;
+  average_streak: number;
+  last_played: string | null;
+}
+
+export interface AbilityGuessResult {
+  is_correct: boolean;
+  streak: number;
+  answer: PokemonPublic;
+  next_round: AbilityGameRound | null;
+}
+
 export interface GuessResult {
   game_id: string;
   round_number: number;

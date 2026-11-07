@@ -116,7 +116,31 @@
 
 ---
 
-## 6. DNS Configuration
+## 6. Docker Compose Single-Host Deployment (Self-Hosted Alternative)
+
+If you prefer deploying the complete stack on a single VPS (e.g. DigitalOcean droplet, Hetzner, AWS EC2):
+
+1. Clone repository to server:
+   ```bash
+   git clone https://github.com/your-username/staxx.git
+   cd staxx
+   ```
+2. Run the full containerized stack:
+   ```bash
+   docker compose up --build -d
+   ```
+3. Seed the Pokémon database in the running container:
+   ```bash
+   docker compose exec api python -m scripts.import_pokemon --mode full
+   ```
+4. Access:
+   - Web application: `http://<your-server-ip>:3000`
+   - API endpoints: `http://<your-server-ip>:8000/api/v1`
+   - Healthcheck: `http://<your-server-ip>:8000/api/v1/ready`
+
+---
+
+## 7. DNS Configuration
 
 Add these DNS records for `staxx.gg`:
 

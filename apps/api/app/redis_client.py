@@ -114,32 +114,36 @@ async def delete_session(token: str) -> None:
 # Leaderboard helpers
 # ---------------------------------------------------------------------------
 
-def _lb_alltime_key() -> str:
-    return "leaderboard:alltime"
+def _lb_alltime_key(mode: str = "stats") -> str:
+    return "leaderboard:alltime" if mode == "stats" else f"leaderboard:{mode}:alltime"
 
 
-def _lb_daily_key(dt: datetime | None = None) -> str:
+def _lb_daily_key(dt: datetime | None = None, mode: str = "stats") -> str:
+    if isinstance(dt, str):
+        mode, dt = dt, None
     dt = dt or datetime.now(timezone.utc)
-    return f"leaderboard:daily:{dt.strftime('%Y-%m-%d')}"
+    return f"leaderboard:daily:{dt.strftime('%Y-%m-%d')}" if mode == "stats" else f"leaderboard:{mode}:daily:{dt.strftime('%Y-%m-%d')}"
 
 
-def _lb_weekly_key(dt: datetime | None = None) -> str:
+def _lb_weekly_key(dt: datetime | None = None, mode: str = "stats") -> str:
+    if isinstance(dt, str):
+        mode, dt = dt, None
     dt = dt or datetime.now(timezone.utc)
     iso = dt.isocalendar()
-    return f"leaderboard:weekly:{iso.year}-W{iso.week:02d}"
+    return f"leaderboard:weekly:{iso.year}-W{iso.week:02d}" if mode == "stats" else f"leaderboard:{mode}:weekly:{iso.year}-W{iso.week:02d}"
 
 
-async def leaderboard_update(user_id: str, score: int) -> None:
+async def leaderboard_update(user_id: str, score: int, mode: str = "stats") -> None:
     """Update all three leaderboard sorted sets (only if score is better)."""
     r = get_redis()
     now = datetime.now(timezone.utc)
-    for key in (_lb_alltime_key(), _lb_daily_key(now), _lb_weekly_key(now)):
+    for key in (_lb_alltime_key(mode), _lb_daily_key(now, mode), _lb_weekly_key(now, mode)):
         current = await r.zscore(key, user_id)
         if current is None or score > current:
             await r.zadd(key, {user_id: score})
     # Expire daily/weekly keys so they self-clean
-    await r.expire(_lb_daily_key(now), 86400 * 2)
-    await r.expire(_lb_weekly_key(now), 86400 * 8)
+    await r.expire(_lb_daily_key(now, mode), 86400 * 2)
+    await r.expire(_lb_weekly_key(now, mode), 86400 * 8)
 
 
 async def leaderboard_top(key: str, start: int = 0, stop: int = 9) -> list[dict[str, Any]]:

@@ -4,12 +4,14 @@ from __future__ import annotations
 
 import uuid
 import logging
+import secrets
 from datetime import datetime, timezone
 from typing import Any
 
 from app.database import get_db
 from app.games.engine import (
     build_pokemon_public,
+    build_pokemon_with_abilities,
     build_pokemon_with_stat,
     compare,
     get_stat_value,
@@ -82,6 +84,73 @@ async def start_game(player_id: str) -> dict[str, Any]:
         "pokemon_a": build_pokemon_with_stat(pokemon_a, category),
         "pokemon_b": build_pokemon_public(pokemon_b),
     }
+
+
+async def start_ability_game(player_id: str) -> dict[str, Any]:
+    """Start a four-choice quiz: identify a Pokémon from its complete ability set."""
+    pool = [p for p in await _fetch_pokemon_pool() if p.get("abilities")]
+    if len(pool) < 4:
+        raise ValueError("Ability mode needs Pokémon ability data. Re-import the Pokémon dataset first.")
+    game_id = str(uuid.uuid4())
+    answer = pick_random_pokemon(pool)
+    distractors: list[dict[str, Any]] = []
+    used = {answer["canonical_id"]}
+    while len(distractors) < 3:
+        candidate = pick_random_pokemon(pool, exclude_ids=used)
+        distractors.append(candidate)
+        used.add(candidate["canonical_id"])
+    options = [answer, *distractors]
+    secrets.SystemRandom().shuffle(options)
+    now = datetime.now(timezone.utc)
+    state = {"game_id": game_id, "player_id": player_id, "status": "active", "mode": "abilities", "streak": 0, "round_number": 1, "answer": answer, "options": options, "used_ids": list(used), "rounds_history": [], "started_at": now.isoformat()}
+    await store_game_state(game_id, state)
+    db = get_db()
+    stats = await db.player_stats.find_one({"user_id": player_id})
+    best_guesser = stats.get("best_streak_guesser", 0) if stats else 0
+    await db.game_sessions.insert_one({"_id": game_id, "player_id": player_id, "mode": "abilities", "status": "active", "streak": 0, "rounds": [], "started_at": now, "ended_at": None})
+    res = _ability_round_response(state)
+    res["personal_best"] = best_guesser
+    return res
+
+
+def _ability_round_response(state: dict[str, Any]) -> dict[str, Any]:
+    return {"game_id": state["game_id"], "round_number": state["round_number"], "mode": "abilities", "prompt": build_pokemon_with_abilities(state["answer"]), "options": [build_pokemon_public(option) for option in state["options"]]} 
+
+
+async def process_ability_guess(game_id: str, player_id: str, pokemon_id: str) -> dict[str, Any]:
+    state = await get_game_state(game_id)
+    if state is None or state.get("mode") != "abilities":
+        raise ValueError("Ability game not found or expired.")
+    if state["player_id"] != player_id:
+        raise PermissionError("This game does not belong to you.")
+    if state["status"] != "active":
+        raise ValueError("This game is no longer active.")
+    answer = state["answer"]
+    is_correct = pokemon_id == answer["canonical_id"]
+    round_record = {"round_number": state["round_number"], "answer_id": answer["canonical_id"], "player_answer": pokemon_id, "is_correct": is_correct}
+    state["rounds_history"].append(round_record)
+    db = get_db()
+    if is_correct:
+        state["streak"] += 1
+        pool = [p for p in await _fetch_pokemon_pool() if p.get("abilities")]
+        used = set(state["used_ids"])
+        next_answer = pick_random_pokemon(pool, exclude_ids=used)
+        used.add(next_answer["canonical_id"])
+        options = [next_answer]
+        while len(options) < 4:
+            candidate = pick_random_pokemon(pool, exclude_ids=used)
+            options.append(candidate); used.add(candidate["canonical_id"])
+        secrets.SystemRandom().shuffle(options)
+        state.update({"streak": state["streak"], "round_number": state["round_number"] + 1, "answer": next_answer, "options": options, "used_ids": list(used)})
+        await store_game_state(game_id, state)
+        await db.game_sessions.update_one({"_id": game_id}, {"$set": {"streak": state["streak"]}, "$push": {"rounds": round_record}})
+        return {"is_correct": True, "streak": state["streak"], "answer": build_pokemon_public(answer), "next_round": _ability_round_response(state)}
+    streak = state["streak"]
+    await delete_game_state(game_id)
+    await db.game_sessions.update_one({"_id": game_id}, {"$set": {"status": "completed", "streak": streak, "ended_at": datetime.now(timezone.utc)}, "$push": {"rounds": round_record}})
+    await _update_player_stats(player_id, streak, is_win=False, mode="guesser")
+    await leaderboard_update(player_id, streak, mode="guesser")
+    return {"is_correct": False, "streak": streak, "answer": build_pokemon_public(answer), "next_round": None}
 
 
 async def process_guess(game_id: str, player_id: str, answer: str) -> dict[str, Any]:
@@ -320,39 +389,57 @@ async def get_game_history(player_id: str, limit: int = 20, skip: int = 0) -> li
     return results
 
 
-async def _update_player_stats(player_id: str, streak: int, *, is_win: bool) -> None:
-    """Update player statistics after a game ends."""
+async def _update_player_stats(player_id: str, streak: int, *, is_win: bool, mode: str = "stats") -> None:
+    """Update player statistics after a game ends, separated by game mode."""
     db = get_db()
     now = datetime.now(timezone.utc)
+    is_guesser = mode in ("abilities", "guesser")
 
     stats = await db.player_stats.find_one({"user_id": player_id})
+
+    if is_guesser:
+        played_key = "games_played_guesser"
+        correct_key = "total_correct_guesser"
+        incorrect_key = "total_incorrect_guesser"
+        best_key = "best_streak_guesser"
+        curr_key = "current_streak_guesser"
+    else:
+        played_key = "games_played"
+        correct_key = "total_correct"
+        incorrect_key = "total_incorrect"
+        best_key = "best_streak"
+        curr_key = "current_streak"
+
     if stats is None:
         games_played = 1
         total_correct = streak
         total_incorrect = 0 if is_win else 1
         best_streak = streak
-        average_streak = float(streak)
     else:
-        games_played = stats.get("games_played", 0) + 1
-        total_correct = stats.get("total_correct", 0) + streak
-        total_incorrect = stats.get("total_incorrect", 0) + (0 if is_win else 1)
-        best_streak = max(stats.get("best_streak", 0), streak)
-        prev_avg = stats.get("average_streak", 0.0)
-        prev_games = stats.get("games_played", 0)
-        average_streak = (prev_avg * prev_games + streak) / games_played if games_played > 0 else 0.0
+        games_played = stats.get(played_key, 0) + 1
+        total_correct = stats.get(correct_key, 0) + streak
+        total_incorrect = stats.get(incorrect_key, 0) + (0 if is_win else 1)
+        best_streak = max(stats.get(best_key, 0), streak)
+
+    update_fields: dict[str, Any] = {
+        played_key: games_played,
+        correct_key: total_correct,
+        incorrect_key: total_incorrect,
+        best_key: best_streak,
+        curr_key: streak,
+        "last_played": now,
+    }
+
+    if not is_guesser:
+        prev_avg = stats.get("average_streak", 0.0) if stats else 0.0
+        prev_games = stats.get("games_played", 0) if stats else 0
+        avg = (prev_avg * prev_games + streak) / games_played if games_played > 0 else 0.0
+        update_fields["average_streak"] = round(avg, 2)
 
     await db.player_stats.update_one(
         {"user_id": player_id},
         {
-            "$set": {
-                "games_played": games_played,
-                "total_correct": total_correct,
-                "total_incorrect": total_incorrect,
-                "best_streak": best_streak,
-                "current_streak": streak,
-                "average_streak": round(average_streak, 2),
-                "last_played": now,
-            },
+            "$set": update_fields,
             "$setOnInsert": {"user_id": player_id},
         },
         upsert=True,

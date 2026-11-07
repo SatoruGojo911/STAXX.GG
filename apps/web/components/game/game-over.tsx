@@ -5,6 +5,7 @@ import { motion } from "framer-motion";
 import { Trophy, RotateCcw, Share2, Check, Flame, Sparkles } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { getAuraTier } from "@/lib/aura-config";
+import { GoogleSignInModal } from "@/components/auth/google-sign-in-modal";
 
 interface GameOverProps {
   finalStreak: number;
@@ -115,6 +116,19 @@ export function GameOver({
           {copied ? <Check className="mr-1.5 h-4 w-4 text-emerald-400" /> : <Share2 className="mr-1.5 h-4 w-4" />}
           {copied ? "Copied!" : "Share"}
         </Button>
+      </div>
+
+      <div className="mt-4 pt-3 border-t border-border/40 w-full flex justify-center">
+        <GoogleSignInModal
+          trigger={
+            <button
+              type="button"
+              className="text-xs text-muted-foreground hover:text-primary transition-colors flex items-center gap-1.5 font-bold"
+            >
+              <Sparkles className="h-3 w-3 text-primary" /> Sign in with Google to permanently lock in your rank
+            </button>
+          }
+        />
       </div>
     </motion.div>
   );

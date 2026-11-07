@@ -26,6 +26,7 @@ class PokemonDoc(BaseModel):
     form_name: str | None = None
     generation: int | None = None
     types: list[str] = Field(default_factory=list)
+    abilities: list[str] = Field(default_factory=list)
     stats: PokemonStats
     height: float = Field(..., ge=0, description="Height in metres")
     weight: float = Field(..., ge=0, description="Weight in kg")

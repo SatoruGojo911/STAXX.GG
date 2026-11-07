@@ -27,11 +27,23 @@ async def verify_google_token(token: str) -> dict:
 
     Raises ValueError on invalid tokens.
     """
+    # Allow mock tokens in non-production environments for testing and local development
+    if not settings.is_production and (token.startswith("mock_google_") or token.startswith("dev_google_")):
+        parts = token.split("_")
+        name_part = parts[-1] if len(parts) > 2 else "trainer"
+        return {
+            "sub": f"mock_sub_{name_part}",
+            "email": f"{name_part}@staxx.gg",
+            "name": f"Trainer {name_part.capitalize()}",
+            "picture": f"https://api.dicebear.com/7.x/bottts/svg?seed={name_part}",
+        }
+
     try:
+        audience = settings.GOOGLE_CLIENT_ID if settings.GOOGLE_CLIENT_ID else None
         idinfo = google_id_token.verify_oauth2_token(
             token,
             GoogleRequest(),
-            settings.GOOGLE_CLIENT_ID,
+            audience,
         )
         return idinfo
     except Exception as exc:
@@ -70,7 +82,6 @@ async def login_or_register_google(token: str) -> tuple[dict, str, bool]:
             "google_sub": google_sub,
             "email": email,
             "display_name": name,
-            "username": None,
             "avatar_url": picture,
             "account_type": "google",
             "created_at": now,

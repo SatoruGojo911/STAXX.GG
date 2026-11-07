@@ -4,7 +4,6 @@ import * as React from "react";
 import { motion } from "framer-motion";
 import { ArrowUp, ArrowDown, Equal } from "lucide-react";
 import { GuessAnswer } from "@/types";
-import { Button } from "@/components/ui/button";
 
 interface GameControlsProps {
   onGuess: (answer: GuessAnswer) => void;
@@ -12,7 +11,6 @@ interface GameControlsProps {
 }
 
 export function GameControls({ onGuess, disabled }: GameControlsProps) {
-  // Keyboard event listeners
   React.useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
       if (disabled) return;
@@ -22,7 +20,7 @@ export function GameControls({ onGuess, disabled }: GameControlsProps) {
       } else if (e.key === "ArrowDown" || e.key.toLowerCase() === "l") {
         e.preventDefault();
         onGuess("lower");
-      } else if (e.key === "ArrowRight" || e.key === "=" || e.key.toLowerCase() === "e") {
+      } else if (e.key === "ArrowRight" || e.key === "=" || e.key.toLowerCase() === "e" || e.key.toLowerCase() === "s") {
         e.preventDefault();
         onGuess("equal");
       }
@@ -33,56 +31,50 @@ export function GameControls({ onGuess, disabled }: GameControlsProps) {
   }, [onGuess, disabled]);
 
   return (
-    <div className="flex flex-col items-center gap-3 w-full max-w-md font-redaction">
-      <div className="grid grid-cols-3 gap-3 w-full">
-        {/* HIGHER Button */}
+    <div className="flex flex-col items-center gap-1.5 w-full max-w-md font-redaction">
+      <div className="grid grid-cols-3 gap-2 w-full">
         <motion.div whileHover={disabled ? {} : { scale: 1.02 }} whileTap={disabled ? {} : { scale: 0.97 }}>
           <button
             type="button"
             disabled={disabled}
             onClick={() => onGuess("higher")}
-            className="liquid-glass relative flex flex-col items-center justify-center h-20 w-full rounded-2xl bg-emerald-500/10 hover:bg-emerald-500/20 text-emerald-400 border border-emerald-500/30 font-black shadow-lg transition-all disabled:opacity-40 cursor-pointer overflow-hidden group"
+            className="relative flex flex-col items-center justify-center h-16 w-full rounded-none bg-emerald-600 text-white hover:bg-emerald-500 border border-emerald-700 font-black shadow-none transition-all disabled:opacity-40 cursor-pointer overflow-hidden group"
           >
-            <div className="pointer-events-none absolute inset-x-4 top-0 h-[1px] bg-gradient-to-r from-transparent via-emerald-400/40 to-transparent" />
             <ArrowUp className="h-5 w-5 stroke-[2.5] transition-transform group-hover:-translate-y-0.5" />
-            <span className="text-xs tracking-wider uppercase mt-1">HIGHER</span>
-            <span className="text-[10px] text-muted-foreground font-mono">[↑ / H]</span>
+            <span className="text-xs tracking-wider uppercase mt-1">Higher</span>
+            <span className="text-[10px] text-white/80 font-mono">[↑ / H]</span>
           </button>
         </motion.div>
 
-        {/* EQUAL Button */}
         <motion.div whileHover={disabled ? {} : { scale: 1.02 }} whileTap={disabled ? {} : { scale: 0.97 }}>
           <button
             type="button"
             disabled={disabled}
             onClick={() => onGuess("equal")}
-            className="liquid-glass relative flex flex-col items-center justify-center h-20 w-full rounded-2xl bg-amber-500/10 hover:bg-amber-500/20 text-amber-400 border border-amber-500/30 font-black shadow-lg transition-all disabled:opacity-40 cursor-pointer overflow-hidden group"
+            className="relative flex flex-col items-center justify-center h-16 w-full rounded-none bg-sky-600 text-white hover:bg-sky-500 border border-sky-700 font-black shadow-none transition-all disabled:opacity-40 cursor-pointer overflow-hidden group"
           >
-            <div className="pointer-events-none absolute inset-x-4 top-0 h-[1px] bg-gradient-to-r from-transparent via-amber-400/40 to-transparent" />
             <Equal className="h-5 w-5 stroke-[2.5]" />
-            <span className="text-xs tracking-wider uppercase mt-1">EQUAL</span>
-            <span className="text-[10px] text-muted-foreground font-mono">[→ / E]</span>
+            <span className="text-xs tracking-wider uppercase mt-1">Same</span>
+            <span className="text-[10px] text-white/80 font-mono">[→ / S]</span>
           </button>
         </motion.div>
 
-        {/* LOWER Button */}
         <motion.div whileHover={disabled ? {} : { scale: 1.02 }} whileTap={disabled ? {} : { scale: 0.97 }}>
           <button
             type="button"
             disabled={disabled}
             onClick={() => onGuess("lower")}
-            className="liquid-glass relative flex flex-col items-center justify-center h-20 w-full rounded-2xl bg-rose-500/10 hover:bg-rose-500/20 text-rose-400 border border-rose-500/30 font-black shadow-lg transition-all disabled:opacity-40 cursor-pointer overflow-hidden group"
+            className="relative flex flex-col items-center justify-center h-16 w-full rounded-none bg-rose-600 text-white hover:bg-rose-500 border border-rose-700 font-black shadow-none transition-all disabled:opacity-40 cursor-pointer overflow-hidden group"
           >
-            <div className="pointer-events-none absolute inset-x-4 top-0 h-[1px] bg-gradient-to-r from-transparent via-rose-400/40 to-transparent" />
             <ArrowDown className="h-5 w-5 stroke-[2.5] transition-transform group-hover:translate-y-0.5" />
-            <span className="text-xs tracking-wider uppercase mt-1">LOWER</span>
-            <span className="text-[10px] text-muted-foreground font-mono">[↓ / L]</span>
+            <span className="text-xs tracking-wider uppercase mt-1">Lower</span>
+            <span className="text-[10px] text-white/80 font-mono">[↓ / L]</span>
           </button>
         </motion.div>
       </div>
 
-      <p className="text-[11px] text-muted-foreground text-center">
-        Predict if the right Pokémon has a higher, lower, or equal stat
+      <p className="hidden text-[11px] text-muted-foreground text-center sm:block">
+        Predict if the right Pokémon has a higher, lower, or same stat
       </p>
     </div>
   );

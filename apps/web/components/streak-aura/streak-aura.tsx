@@ -1,127 +1,69 @@
 "use client";
 
-import * as React from "react";
-import { motion, AnimatePresence, useReducedMotion } from "framer-motion";
-import { Sparkles } from "lucide-react";
-import { getAuraTier } from "@/lib/aura-config";
-import { AuraParticles } from "./aura-particles";
-import { StreakDisplay } from "./streak-display";
+import { motion } from "framer-motion";
+import { Flame, Trophy } from "lucide-react";
+import { AURA_TIERS, getAuraTier, getNextMilestone } from "@/lib/aura-config";
 
 interface StreakAuraProps {
   streak: number;
   personalBest?: number;
-  isEvolution?: boolean;
 }
 
-export function StreakAura({ streak, personalBest = 0, isEvolution = false }: StreakAuraProps) {
-  const tier = getAuraTier(streak);
-  const shouldReduceMotion = useReducedMotion();
-  const [showEvolutionBanner, setShowEvolutionBanner] = React.useState(false);
-  const prevTierLevelRef = React.useRef(tier.level);
+const STREAK_PURPLE = "#7c3aed";
+const STREAK_PURPLE_SOFT = "rgba(124, 58, 237, 0.16)";
 
-  // Trigger special evolution animation when crossing into a higher tier
-  React.useEffect(() => {
-    if (tier.level > prevTierLevelRef.current && tier.level > 0) {
-      setShowEvolutionBanner(true);
-      const timer = setTimeout(() => setShowEvolutionBanner(false), 2400);
-      return () => clearTimeout(timer);
-    }
-    prevTierLevelRef.current = tier.level;
-  }, [tier.level]);
+/** Persistent, in-game streak status bar. Its active zone always reflects the current run. */
+export function StreakAura({ streak, personalBest = 0 }: StreakAuraProps) {
+  const tier = getAuraTier(streak);
+  const { nextTier, needed, progress } = getNextMilestone(streak);
 
   return (
-    <div className="relative flex flex-col items-center justify-center py-2 select-none">
-      {/* Evolution Milestone Announcement Overlay */}
-      <AnimatePresence>
-        {showEvolutionBanner && !shouldReduceMotion && (
-          <motion.div
-            initial={{ opacity: 0, scale: 0.8, y: 10 }}
-            animate={{ opacity: 1, scale: 1.05, y: -20 }}
-            exit={{ opacity: 0, scale: 1.15, y: -30 }}
-            transition={{ duration: 0.45, ease: "easeOut" }}
-            className="liquid-glass absolute -top-12 z-50 flex items-center gap-2 rounded-full px-5 py-2 font-redaction text-xs font-black uppercase tracking-widest text-foreground shadow-2xl"
-            style={{
-              borderColor: tier.primaryColor,
-              boxShadow: `0 0 35px ${tier.glowColor}`,
-            }}
+    <aside
+      aria-label={`Current streak: ${streak}. ${tier.name} zone.`}
+      className="fixed inset-x-0 bottom-0 z-50 border-t border-violet-500/40 bg-card/95 font-redaction shadow-[0_-12px_30px_-25px_rgba(124,58,237,.55)] backdrop-blur-md"
+    >
+      <div className="mx-auto grid max-w-5xl grid-cols-[auto_1fr_auto] items-center gap-3 px-4 py-3 sm:gap-6 sm:px-6">
+        <div className="flex items-center gap-2 sm:gap-3">
+          <div
+            className="grid h-10 w-10 shrink-0 place-items-center border text-lg font-bold tabular-nums sm:h-12 sm:w-12 sm:text-xl"
+            style={{ borderColor: STREAK_PURPLE, color: STREAK_PURPLE, backgroundColor: STREAK_PURPLE_SOFT }}
           >
-            <Sparkles className="h-4 w-4" style={{ color: tier.primaryColor }} />
-            <span>AURA EVOLVED: {tier.name}</span>
-            <Sparkles className="h-4 w-4" style={{ color: tier.primaryColor }} />
-          </motion.div>
-        )}
-      </AnimatePresence>
+            <motion.span key={streak} initial={{ scale: 1.25 }} animate={{ scale: 1 }} transition={{ type: "spring", stiffness: 430, damping: 24 }}>{streak}</motion.span>
+          </div>
+          <div className="hidden min-w-0 sm:block">
+            <p className="display-kicker text-violet-700 dark:text-violet-300">Current streak</p>
+            <p className="truncate text-sm font-bold" style={{ color: STREAK_PURPLE }}>{tier.name} zone</p>
+          </div>
+        </div>
 
-      {/* Main Aura Container */}
-      <div className="relative flex items-center justify-center p-6">
-        {/* Particle Fields */}
-        <AuraParticles tier={tier} streak={streak} />
+        <div className="min-w-0">
+          <div className="mb-2 flex items-center justify-between gap-3 text-[10px] font-bold uppercase tracking-[.12em] text-muted-foreground sm:text-xs">
+            <span className="truncate" style={{ color: STREAK_PURPLE }}>
+              <Flame className="mr-1 inline h-3.5 w-3.5 fill-violet-600" /> {tier.name}
+            </span>
+            <span className="shrink-0">{nextTier ? `${needed} to ${nextTier.name}` : "Top zone"}</span>
+          </div>
+          <div className="flex h-2 overflow-hidden border border-violet-500/30 bg-violet-500/10">
+            {AURA_TIERS.map((zone) => (
+              <span key={zone.level} className="relative flex-1 border-r border-background last:border-r-0" style={{ backgroundColor: zone.level <= tier.level ? STREAK_PURPLE : undefined }}>
+                {zone.level === tier.level && nextTier && (
+                  <motion.span className="absolute inset-y-0 left-0 bg-white/55" initial={{ width: 0 }} animate={{ width: `${progress}%` }} transition={{ duration: .45 }} />
+                )}
+              </span>
+            ))}
+          </div>
+          <div className="mt-1 hidden justify-between text-[9px] font-medium text-muted-foreground sm:flex">
+            <span>Start</span><span>Spark</span><span>Flame</span><span>Charged</span><span>Radiant</span><span>Ascended</span><span>Legendary</span><span>Mythical</span><span>Godlike</span>
+          </div>
+        </div>
 
-        {/* Outer Liquid Ring (Tier 5+) */}
-        {tier.level >= 5 && !shouldReduceMotion && (
-          <motion.div
-            className="absolute rounded-full pointer-events-none"
-            style={{
-              width: 140 + tier.level * 6,
-              height: 140 + tier.level * 6,
-              border: `1px solid ${tier.primaryColor}`,
-              opacity: 0.35,
-            }}
-            animate={{ rotate: 360 }}
-            transition={{ duration: 18 - tier.level, repeat: Infinity, ease: "linear" }}
-          />
-        )}
-
-        {/* Soft Liquid Glow Pulsing Ring */}
-        {tier.level > 0 && !shouldReduceMotion && (
-          <motion.div
-            className="absolute rounded-full pointer-events-none"
-            style={{
-              width: 110 + tier.level * 4,
-              height: 110 + tier.level * 4,
-              backgroundColor: tier.glowColor,
-              filter: "blur(24px)",
-            }}
-            animate={{
-              scale: [0.95, 1.1, 0.95],
-              opacity: [0.3, 0.6, 0.3],
-            }}
-            transition={{
-              duration: Math.max(1.4, 2.6 - tier.level * 0.15),
-              repeat: Infinity,
-              ease: "easeInOut",
-            }}
-          />
-        )}
-
-        {/* Central Streak Counter Disk - Pure Liquid Frosted Glass */}
-        <motion.div
-          key={streak}
-          initial={shouldReduceMotion ? {} : { scale: 1.12 }}
-          animate={{ scale: 1 }}
-          transition={{ type: "spring", stiffness: 450, damping: 28 }}
-          className="liquid-glass relative z-10 flex h-24 w-24 flex-col items-center justify-center rounded-full transition-all duration-300"
-          style={{
-            borderColor: tier.level > 0 ? tier.primaryColor : undefined,
-          }}
-        >
-          {/* Specular Highlight Arc */}
-          <div className="pointer-events-none absolute inset-x-3 top-1 h-[1px] bg-gradient-to-r from-transparent via-white/30 to-transparent" />
-
-          <span className="text-[10px] font-bold tracking-widest uppercase text-muted-foreground font-redaction">
-            STREAK
-          </span>
-          <span
-            className="font-redaction text-4xl font-black tabular-nums tracking-tighter"
-            style={{ color: tier.level > 0 ? tier.primaryColor : "inherit" }}
-          >
-            {streak}
-          </span>
-        </motion.div>
+        <div className="text-right">
+          <p className="hidden text-[10px] font-bold uppercase tracking-[.12em] text-muted-foreground sm:block">Personal best</p>
+          <p className="flex items-center justify-end gap-1 text-sm font-bold tabular-nums">
+            <Trophy className="h-3.5 w-3.5 text-violet-600" /> {personalBest}
+          </p>
+        </div>
       </div>
-
-      {/* Subtext info & Next milestone */}
-      <StreakDisplay streak={streak} personalBest={personalBest} />
-    </div>
+    </aside>
   );
 }

@@ -1,4 +1,4 @@
-import { GameRound, GuessAnswer, GuessResult, LeaderboardResponse, PokemonPublic, User } from "@/types";
+import { AbilityGameRound, AbilityGuessResult, GameRound, GuessAnswer, GuessResult, LeaderboardResponse, PokemonPublic, User } from "@/types";
 
 const API_BASE = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000/api/v1";
 
@@ -79,6 +79,17 @@ export const api = {
     return user;
   },
 
+  async claimGuest(idToken: string): Promise<User> {
+    const user = await request<User>("/auth/claim-guest", {
+      method: "POST",
+      body: JSON.stringify({ id_token: idToken }),
+    });
+    if (user.session_token) {
+      setStoredToken(user.session_token);
+    }
+    return user;
+  },
+
   async getMe(): Promise<User | null> {
     try {
       return await request<User>("/auth/me");
@@ -102,6 +113,14 @@ export const api = {
     });
   },
 
+  async startAbilityGame(): Promise<AbilityGameRound> {
+    return request<AbilityGameRound>("/games/abilities/start", { method: "POST" });
+  },
+
+  async submitAbilityGuess(gameId: string, pokemonId: string): Promise<AbilityGuessResult> {
+    return request<AbilityGuessResult>(`/games/abilities/${gameId}/guess`, { method: "POST", body: JSON.stringify({ pokemon_id: pokemonId }) });
+  },
+
   async submitGuess(gameId: string, answer: GuessAnswer): Promise<GuessResult> {
     return request<GuessResult>(`/games/${gameId}/guess`, {
       method: "POST",
@@ -122,12 +141,12 @@ export const api = {
   },
 
   // Leaderboards
-  async getLeaderboard(period: "alltime" | "daily" | "weekly", limit = 50): Promise<LeaderboardResponse> {
-    return request<LeaderboardResponse>(`/leaderboards/${period}?limit=${limit}`);
+  async getLeaderboard(period: "alltime" | "daily" | "weekly", limit = 50, mode: "stats" | "abilities" = "stats"): Promise<LeaderboardResponse> {
+    return request<LeaderboardResponse>(`/leaderboards/${period}?limit=${limit}&mode=${mode}`);
   },
 
-  async getMyRanks(): Promise<any> {
-    return request("/leaderboards/me");
+  async getMyRanks(mode: "stats" | "abilities" = "stats"): Promise<any> {
+    return request(`/leaderboards/me?mode=${mode}`);
   },
 
   // Pokémon

@@ -10,6 +10,7 @@ import { GameControls } from "./game-controls";
 import { StatBadge } from "./stat-badge";
 import { GameOver } from "./game-over";
 import { StreakAura } from "@/components/streak-aura/streak-aura";
+import { ScoreCard } from "./score-card";
 
 export function GameBoard() {
   const [round, setRound] = React.useState<GameRound | null>(null);
@@ -17,8 +18,12 @@ export function GameBoard() {
   const [personalBest, setPersonalBest] = React.useState(0);
   const [loading, setLoading] = React.useState(true);
   const [submitting, setSubmitting] = React.useState(false);
-  const [revealedValueB, setRevealedValueB] = React.useState<number | null>(null);
-  const [resultFeedback, setResultFeedback] = React.useState<"correct" | "incorrect" | null>(null);
+  const [revealedValueB, setRevealedValueB] = React.useState<number | null>(
+    null,
+  );
+  const [resultFeedback, setResultFeedback] = React.useState<
+    "correct" | "incorrect" | null
+  >(null);
   const [isGameOver, setIsGameOver] = React.useState(false);
   const [finalStreak, setFinalStreak] = React.useState(0);
   const [isNewPersonalBest, setIsNewPersonalBest] = React.useState(false);
@@ -109,7 +114,9 @@ export function GameBoard() {
     return (
       <div className="flex min-h-[500px] flex-col items-center justify-center gap-4 font-redaction">
         <Loader2 className="h-10 w-10 animate-spin text-primary" />
-        <p className="text-lg font-bold text-muted-foreground animate-pulse">Loading Pokémon Data …</p>
+        <p className="text-lg font-bold text-muted-foreground animate-pulse">
+          Loading Pokémon Data …
+        </p>
       </div>
     );
   }
@@ -132,45 +139,40 @@ export function GameBoard() {
   }
 
   return (
-    <div className="flex flex-col items-center justify-center w-full max-w-5xl mx-auto px-4 py-4 gap-6 select-none">
-      {/* Signature Streak Aura Display */}
-      <StreakAura streak={streak} personalBest={personalBest} />
-
+    <div className="flex flex-col items-center justify-center w-full max-w-5xl mx-auto px-4 py-2 pb-24 sm:pb-28 gap-3 sm:gap-4 select-none">
       {/* Stat Category Announcement Banner */}
-      <div className="flex items-center justify-center">
-        <StatBadge
-          category={round.stat_category}
-          unit={round.stat_unit}
-          label={round.stat_label}
-        />
+
+      {/* Result feedback indicator — fixed-height slot so layout never shifts */}
+      <div className="relative flex h-10 w-full items-center justify-center">
+        <AnimatePresence>
+          {resultFeedback && (
+            <motion.div
+              key={resultFeedback}
+              initial={{ opacity: 0, scale: 0.5, y: -10 }}
+              animate={{ opacity: 1, scale: 1, y: 0 }}
+              exit={{ opacity: 0, scale: 0.8 }}
+              className={`absolute flex items-center gap-2 px-5 py-2 rounded-full font-redaction text-sm font-black uppercase tracking-wider text-white shadow-xl ${
+                resultFeedback === "correct"
+                  ? "bg-emerald-600 shadow-emerald-500/30"
+                  : "bg-rose-600 shadow-rose-500/30"
+              }`}
+            >
+              {resultFeedback === "correct" ? (
+                <>
+                  <CheckCircle2 className="h-5 w-5" /> CORRECT! STAXX +1
+                </>
+              ) : (
+                <>
+                  <XCircle className="h-5 w-5" /> INCORRECT!
+                </>
+              )}
+            </motion.div>
+          )}
+        </AnimatePresence>
       </div>
 
-      {/* Result feedback indicator */}
-      <AnimatePresence>
-        {resultFeedback && (
-          <motion.div
-            initial={{ opacity: 0, scale: 0.5, y: -10 }}
-            animate={{ opacity: 1, scale: 1, y: 0 }}
-            exit={{ opacity: 0, scale: 0.8 }}
-            className={`flex items-center gap-2 px-5 py-2 rounded-full font-redaction text-sm font-black uppercase tracking-wider text-white shadow-xl ${
-              resultFeedback === "correct" ? "bg-emerald-600 shadow-emerald-500/30" : "bg-rose-600 shadow-rose-500/30"
-            }`}
-          >
-            {resultFeedback === "correct" ? (
-              <>
-                <CheckCircle2 className="h-5 w-5" /> CORRECT! STAXX +1
-              </>
-            ) : (
-              <>
-                <XCircle className="h-5 w-5" /> INCORRECT!
-              </>
-            )}
-          </motion.div>
-        )}
-      </AnimatePresence>
-
       {/* Two Pokémon Comparison Cards */}
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6 w-full items-stretch justify-items-center">
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-3 sm:gap-4 w-full items-stretch justify-items-center">
         {/* Pokémon A (Revealed) */}
         <PokemonCard
           pokemon={round.pokemon_a}
@@ -191,9 +193,10 @@ export function GameBoard() {
       </div>
 
       {/* Game Controls: Higher / Equal / Lower */}
-      <div className="w-full flex justify-center mt-2">
+      <div className="w-full flex justify-center">
         <GameControls onGuess={handleGuess} disabled={submitting} />
       </div>
+      <StreakAura streak={streak} personalBest={personalBest} />
     </div>
   );
 }

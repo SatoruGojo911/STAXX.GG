@@ -6,6 +6,7 @@ import { AbilityGameRound } from "@/types";
 import { api } from "@/lib/api";
 import { StreakAura } from "@/components/streak-aura/streak-aura";
 import { ScoreCard } from "./score-card";
+import { StreakRoller } from "./streak-roller";
 
 export function AbilityGameBoard() {
   const [round, setRound] = React.useState<AbilityGameRound | null>(null);
@@ -91,6 +92,7 @@ export function AbilityGameBoard() {
 
   return (
     <div className="mx-auto flex w-full max-w-4xl flex-col items-center gap-5 px-4 py-3 pb-28 sm:pb-32 font-redaction">
+      <StreakRoller streak={streak} showPlusOne={Boolean(message?.startsWith("Correct"))} />
       <ScoreCard streak={streak} personalBest={best} modeLabel="Guesser" />
 
       <div className="w-full rounded-2xl bg-card/85 p-6 text-center shadow-[0_16px_36px_-18px_rgba(0,0,0,0.6)] backdrop-blur-md sm:p-8">

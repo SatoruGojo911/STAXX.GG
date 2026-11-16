@@ -11,6 +11,7 @@ import { StatBadge } from "./stat-badge";
 import { GameOver } from "./game-over";
 import { StreakAura } from "@/components/streak-aura/streak-aura";
 import { ScoreCard } from "./score-card";
+import { StreakRoller } from "./streak-roller";
 
 export function GameBoard() {
   const [round, setRound] = React.useState<GameRound | null>(null);
@@ -140,7 +141,8 @@ export function GameBoard() {
 
   return (
     <div className="flex flex-col items-center justify-center w-full max-w-5xl mx-auto px-4 py-2 pb-24 sm:pb-28 gap-3 sm:gap-4 select-none">
-      {/* Stat Category Announcement Banner */}
+      {/* Top-Right Streak Roller HUD */}
+      <StreakRoller streak={streak} showPlusOne={resultFeedback === "correct"} />
 
       {/* Result feedback indicator — fixed-height slot so layout never shifts */}
       <div className="relative flex h-10 w-full items-center justify-center">

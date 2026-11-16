@@ -41,15 +41,24 @@ async def connect_db() -> None:
     global _client, _db  # noqa: PLW0603
 
     logger.info("Connecting to MongoDB …")
+    uri = settings.MONGODB_URI.strip() if settings.MONGODB_URI else ""
+    kwargs: dict = {}
+
+    # Only apply certifi TLS bundle when connecting to remote Atlas clusters
+    if "+srv" in uri or "mongodb.net" in uri or "tls=true" in uri.lower():
+        ca_file = _get_ca_file()
+        if ca_file:
+            kwargs["tlsCAFile"] = ca_file
+
     _client = AsyncIOMotorClient(
-        settings.MONGODB_URI,
-        tlsCAFile=_get_ca_file(),
+        uri,
+        **kwargs,
     )
     _db = _client[settings.MONGODB_DATABASE]
 
     # ---------- ensure indexes ----------
     await _ensure_indexes(_db)
-    logger.info("MongoDB connected & indexes ensured.")
+    logger.info("MongoDB client initialized.")
 
 
 async def _ensure_indexes(db: AsyncIOMotorDatabase) -> None:

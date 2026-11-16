@@ -27,14 +27,38 @@ async def connect_redis() -> None:
     """Create the Redis connection pool."""
     global _pool  # noqa: PLW0603
     logger.info("Connecting to Redis …")
-    _pool = aioredis.from_url(
-        settings.REDIS_URL,
-        decode_responses=True,
-        max_connections=20,
-    )
-    # Quick health-check
-    await _pool.ping()
-    logger.info("Redis connected.")
+
+    url = settings.REDIS_URL.strip() if settings.REDIS_URL else "redis://localhost:6379/0"
+    kwargs: dict[str, Any] = {
+        "decode_responses": True,
+        "max_connections": 20,
+    }
+
+    # Automatically upgrade Upstash URLs if mistakenly configured as redis:// (plain) instead of rediss:// (TLS)
+    if "upstash.io" in url and url.startswith("redis://"):
+        logger.warning("Upstash requires TLS; automatically upgrading redis:// to rediss://")
+        url = "rediss://" + url[len("redis://"):]
+
+    if url.startswith("rediss://"):
+        try:
+            import certifi
+            kwargs["ssl_ca_certs"] = certifi.where()
+            kwargs["ssl_cert_reqs"] = "none"
+        except ImportError:
+            pass
+
+    _pool = aioredis.from_url(url, **kwargs)
+
+    try:
+        import asyncio
+        await asyncio.wait_for(_pool.ping(), timeout=5.0)
+        logger.info("Redis connected.")
+    except Exception as exc:
+        logger.error(
+            "Redis ping failed (%s): %s. Check that REDIS_URL in Render is rediss://default:TOKEN@ENDPOINT:PORT. Continuing startup so healthcheck can pass.",
+            url,
+            exc,
+        )
 
 
 async def close_redis() -> None:

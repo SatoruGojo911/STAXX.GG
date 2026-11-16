@@ -153,10 +153,10 @@ export function GameBoard() {
               initial={{ opacity: 0, scale: 0.5, y: -10 }}
               animate={{ opacity: 1, scale: 1, y: 0 }}
               exit={{ opacity: 0, scale: 0.8 }}
-              className={`absolute flex items-center gap-2 px-5 py-2 rounded-full font-redaction text-sm font-black uppercase tracking-wider text-white shadow-xl ${
+              className={`absolute flex items-center gap-2 px-6 py-2.5 rounded-full font-redaction text-sm font-black uppercase tracking-wider shadow-2xl ${
                 resultFeedback === "correct"
-                  ? "bg-emerald-600 shadow-emerald-500/30"
-                  : "bg-rose-600 shadow-rose-500/30"
+                  ? "bg-[#05df72] text-[#052e16] border-2 border-[#46ec9c] shadow-[0_0_35px_rgba(5,223,114,0.7)]"
+                  : "bg-[#ff204e] text-white border-2 border-[#ff6482] shadow-[0_0_35px_rgba(255,32,78,0.7)]"
               }`}
             >
               {resultFeedback === "correct" ? (

@@ -420,7 +420,14 @@ class PokemonImporter:
         self.start_time = time.monotonic()
 
         # MongoDB setup
-        mongo_client = AsyncIOMotorClient(MONGODB_URI)
+        client_kwargs: dict[str, Any] = {}
+        if "+srv" in MONGODB_URI or "mongodb.net" in MONGODB_URI:
+            try:
+                import certifi
+                client_kwargs["tlsCAFile"] = certifi.where()
+            except ImportError:
+                pass
+        mongo_client = AsyncIOMotorClient(MONGODB_URI, **client_kwargs)
         db = mongo_client[MONGODB_DATABASE]
         collection = db[COLLECTION_NAME]
 
